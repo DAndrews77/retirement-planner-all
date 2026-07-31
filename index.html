@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#02080e">
+  <meta name="description" content="A private, flexible retirement planner for any age, income, or portfolio.">
+  <title>Retirement Planner</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <style>
+    :root{
+      --page:#02070d;--panel:#07111a;--panel2:#0a1924;--ink:#f3f7fa;--muted:#91a3b2;
+      --rule:#1b3345;--green:#39d87b;--blue:#1eb6ff;--violet:#a55cff;--amber:#ffaa3b;
+      --red:#ff6b6b;--nav:70px;color-scheme:dark
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{background:#000;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+    body{min-height:100dvh;background:var(--page);color:var(--ink);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    button,input,select{font:inherit}button{cursor:pointer}
+    .app{max-width:1240px;margin:auto;min-height:100dvh;background:linear-gradient(180deg,#020a11,#02070d)}
+    .topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:12px;min-height:62px;padding:9px 16px;background:rgba(2,8,14,.9);backdrop-filter:blur(22px);border-bottom:1px solid rgba(90,130,154,.18)}
+    .menu,.icon-btn{width:44px;height:44px;border-radius:50%;border:1px solid rgba(100,142,166,.3);background:#091923;color:var(--ink);display:grid;place-items:center}
+    .menu svg,.icon-btn svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .brand{flex:1;min-width:0}.brand strong{display:block;font-size:18px}.brand span{font-size:11px;color:var(--muted)}
+    .shell{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:14px;padding:14px 14px 100px}
+    .main,.setup{display:flex;flex-direction:column;gap:12px;min-width:0}
+    .card{border:1px solid rgba(83,124,149,.3);background:linear-gradient(180deg,rgba(8,20,30,.98),rgba(4,13,21,.99));border-radius:20px;overflow:hidden;box-shadow:0 14px 38px rgba(0,0,0,.18)}
+    .hero{position:relative;min-height:280px;padding:22px;display:flex;flex-direction:column;justify-content:flex-end;background:radial-gradient(620px 300px at 80% 18%,rgba(30,182,255,.2),transparent 55%),radial-gradient(480px 300px at 65% 65%,rgba(57,216,123,.08),transparent 60%),linear-gradient(180deg,#06111b,#02080e)}
+    .eyebrow{font:600 10px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.18em;text-transform:uppercase;color:var(--green)}
+    .hero h1{font-size:clamp(42px,9vw,82px);line-height:.92;letter-spacing:-.035em;margin:10px 0 7px;font-variant-numeric:tabular-nums}
+    .hero-note{font:11px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}
+    .hero-badges{display:flex;gap:7px;flex-wrap:wrap;margin-top:15px}.badge{padding:7px 10px;border-radius:999px;border:1px solid rgba(109,151,176,.34);background:rgba(4,14,23,.72);font:10px ui-monospace,monospace}
+    .hero-empty{max-width:560px}.hero-empty h1{font-size:clamp(38px,8vw,66px);line-height:1}.hero-empty p{max-width:500px;color:var(--muted);font-size:15px;margin:12px 0 18px}
+    .primary{min-height:44px;padding:10px 16px;border-radius:12px;border:1px solid rgba(57,216,123,.48);background:rgba(57,216,123,.14);color:#eafff2;font-weight:700}.primary:hover{background:rgba(57,216,123,.22)}
+    .section-head{padding:16px 16px 10px}.section-head h2{font-size:16px}.section-head p{color:var(--muted);font-size:11px;margin-top:3px}
+    .chart{height:340px;width:100%;display:block;background:radial-gradient(500px 240px at 70% 50%,rgba(57,216,123,.04),transparent 60%),#030b12}
+    .legend{display:flex;gap:12px;flex-wrap:wrap;padding:11px 16px 15px}.legend span{display:flex;align-items:center;gap:6px;font-size:10px;color:#cbd7dd}.dot{width:9px;height:9px;border-radius:3px}
+    .income-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;padding:0 16px 16px}.metric{border:1px solid rgba(78,120,145,.26);background:var(--panel2);border-radius:14px;padding:12px;min-width:0}.metric small{display:block;font:9px ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}.metric strong{display:block;font-size:25px;margin-top:3px;overflow-wrap:anywhere}.metric.total{border-color:rgba(57,216,123,.42);background:linear-gradient(135deg,rgba(18,74,45,.34),rgba(5,20,25,.96))}.metric.total strong{color:var(--green)}
+    .status{margin:0 16px 16px;padding:12px 14px;border-radius:13px;border:1px solid rgba(57,216,123,.3);background:rgba(57,216,123,.08);font-size:12px}.status.warn{border-color:rgba(255,170,59,.38);background:rgba(255,170,59,.08);color:#ffe7c4}
+    .table-wrap{overflow-x:auto}.table-wrap::-webkit-scrollbar{display:none}table{width:100%;border-collapse:collapse;min-width:620px;font:11px ui-monospace,SFMono-Regular,Menlo,monospace}caption{text-align:left;padding:16px;font:600 16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}th,td{text-align:right;padding:9px 10px;border-bottom:1px solid rgba(55,92,114,.28);white-space:nowrap}th{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}th:first-child,td:first-child{text-align:left;padding-left:16px;position:sticky;left:0;background:#07131d}tbody tr[data-retire="1"]{background:rgba(57,216,123,.08);color:#dfffea}
+    .disclaimer{padding:15px 16px;color:var(--muted);font-size:11px}.disclaimer strong{color:#cbd8de}
+    .setup{position:sticky;top:76px;align-self:start;max-height:calc(100dvh - 90px);overflow:auto;padding-bottom:8px;scrollbar-width:thin}
+    .setup-head{display:flex;align-items:center;justify-content:space-between;padding:16px}.setup-head h2{font-size:19px}.setup-head p{font-size:11px;color:var(--muted);margin-top:3px}.close{display:none}
+    .group{border:1px solid rgba(73,115,139,.3);background:linear-gradient(180deg,rgba(10,24,35,.98),rgba(5,15,23,.98));border-radius:18px;overflow:hidden}
+    .group-title{display:flex;align-items:center;gap:9px;padding:13px 14px;border-bottom:1px solid rgba(73,115,139,.2)}.group-title strong{font-size:15px}.group-title span{margin-left:auto;font-size:10px;color:var(--muted)}
+    .fields{padding:13px 14px 15px;display:grid;grid-template-columns:1fr 1fr;gap:13px 10px}.field.full{grid-column:1/-1}.field label{display:block;font-size:10.5px;font-weight:650;margin-bottom:5px;color:#dce6eb}.hint{font-size:9.5px;color:var(--muted);margin-top:4px}
+    .control{display:flex;align-items:center;border:1px solid rgba(86,128,151,.35);background:#04101a;border-radius:10px;min-height:44px;overflow:hidden}.control span{padding-left:10px;color:var(--green);font-weight:700}.control input,.control select{width:100%;min-width:0;border:0;background:transparent;color:var(--ink);padding:10px;font-size:16px;outline:none}.control input:focus,.control select:focus{background:rgba(30,182,255,.05)}.invalid{border-color:var(--red)!important}.error{min-height:13px;font-size:9.5px;color:#ff9a9a;margin-top:3px}
+    .accounts{padding:0 10px 10px}.account{border:1px solid rgba(73,115,139,.28);background:#06131d;border-radius:14px;padding:11px;margin-bottom:9px}.account-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}.account-head strong{flex:1;font-size:12px}.remove{border:0;background:none;color:#ff9a9a;padding:6px}.account-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.account-grid .field:first-child{grid-column:1/-1}.add{width:100%;min-height:44px;border:1px dashed rgba(57,216,123,.45);border-radius:12px;background:rgba(57,216,123,.06);color:#dfffea}
+    .actions{display:flex;gap:8px;padding:12px;position:sticky;bottom:0;background:linear-gradient(180deg,rgba(2,8,14,.1),#02080e 24%)}.actions .primary{flex:1}.secondary{min-height:44px;padding:10px 13px;border-radius:12px;border:1px solid rgba(104,145,168,.34);background:#091721;color:#dce7ec}
+    .privacy{padding:0 14px 14px;color:var(--muted);font-size:10px}.privacy strong{color:var(--green)}
+    .backdrop{display:none}.bottom-nav{display:none}
+    [hidden]{display:none!important}
+    @media(max-width:860px){
+      .app{width:100%;max-width:none}.shell{display:block;padding:0 0 calc(var(--nav) + 22px)}.main{gap:10px}.hero,.card{border-radius:0}.hero{min-height:260px}.setup{position:fixed;z-index:1001;inset:max(12px,env(safe-area-inset-top)) 0 0;align-self:auto;min-height:0;height:auto;max-height:calc(100dvh - 12px);padding:0 10px calc(16px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#06111a,#02080e 70%);transform:translateY(105%);opacity:.4;pointer-events:none;transition:transform .32s ease,opacity .2s;border-radius:24px 24px 0 0}.drawer-open .setup{transform:none;opacity:1;pointer-events:auto}.setup-head{position:sticky;top:0;z-index:4;margin:0 -10px 4px;padding:14px;background:rgba(4,13,21,.94);backdrop-filter:blur(20px);border-bottom:1px solid rgba(87,128,151,.22)}.close{display:grid}.backdrop{display:block;position:fixed;z-index:1000;inset:0;border:0;background:rgba(0,0,0,.65);opacity:0;pointer-events:none;transition:opacity .2s}.drawer-open .backdrop{opacity:1;pointer-events:auto}.income-grid{grid-template-columns:1fr 1fr}.chart{height:300px}.bottom-nav{position:fixed;z-index:900;left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(4,1fr);min-height:var(--nav);padding:6px;border:1px solid rgba(75,116,141,.3);border-radius:20px;background:rgba(3,12,20,.93);backdrop-filter:blur(24px);box-shadow:0 14px 44px rgba(0,0,0,.5)}.nav{border:0;background:none;color:#8297a5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:52px;font-size:8px}.nav svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7}.nav.active{color:var(--green)}.topbar{padding-top:max(9px,env(safe-area-inset-top))}.card{box-shadow:none}}
+    @media(max-width:860px){.setup>*{flex-shrink:0}}
+    @media(max-width:390px){.hero{padding:18px 15px}.hero h1{font-size:48px}.income-grid{padding-left:12px;padding-right:12px}.metric strong{font-size:22px}.fields{grid-template-columns:1fr}.field.full,.account-grid .field:first-child{grid-column:auto}.account-grid{grid-template-columns:1fr}.chart{height:270px}}
+    @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <button class="menu" id="openSetup" aria-label="Open planner inputs"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <div class="brand"><strong>Retirement Planner</strong><span>Flexible planning. Your data stays on this device.</span></div>
+    <button class="icon-btn" id="resetTop" aria-label="Reset planner"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8"/><path d="M4 3v5h5"/></svg></button>
+  </header>
+  <div class="shell">
+    <main class="main" id="overview">
+      <section class="card hero" id="hero"></section>
+      <section class="card" id="projectionCard" hidden>
+        <div class="section-head"><h2>Portfolio projection</h2><p id="chartSubtitle"></p></div>
+        <svg class="chart" id="chart" role="img" aria-label="Projected retirement balances by age"></svg>
+        <div class="legend" id="legend"></div>
+      </section>
+      <section class="card" id="incomeCard" hidden>
+        <div class="section-head"><h2>Estimated monthly income at retirement</h2><p>Starting-year estimate before taxes</p></div>
+        <div class="income-grid" id="incomeGrid"></div>
+        <div class="status" id="status"></div>
+      </section>
+      <section class="card table-wrap" id="tableCard" hidden><table><caption>Planning checkpoints</caption><thead id="thead"></thead><tbody id="tbody"></tbody></table></section>
+      <section class="card disclaimer"><strong>Planning estimate only.</strong> Returns, inflation, taxes, benefits, and longevity are uncertain. This tool is educational and does not provide investment, tax, legal, or Social Security advice.</section>
+    </main>
+    <aside class="setup" id="setup" aria-label="Planner inputs">
+      <div class="setup-head"><div><h2>Build your plan</h2><p>Required fields are marked with *</p></div><button class="icon-btn close" id="closeSetup" aria-label="Close planner inputs">×</button></div>
+      <section class="group">
+        <div class="group-title"><strong>Timeline & household</strong><span>Required</span></div>
+        <div class="fields">
+          <div class="field"><label for="currentAge">Current age *</label><div class="control"><input id="currentAge" type="number" min="18" max="100" inputmode="numeric" placeholder="40"></div><div class="error" data-error="currentAge"></div></div>
+          <div class="field"><label for="retirementAge">Retirement age *</label><div class="control"><input id="retirementAge" type="number" min="18" max="100" inputmode="numeric" placeholder="65"></div><div class="error" data-error="retirementAge"></div></div>
+          <div class="field"><label for="income">Current annual income *</label><div class="control"><span>$</span><input id="income" type="number" min="0" step="1000" inputmode="decimal" placeholder="75000"></div><div class="error" data-error="income"></div></div>
+          <div class="field"><label for="lifeExpectancy">Plan through age *</label><div class="control"><input id="lifeExpectancy" type="number" min="19" max="120" inputmode="numeric" value="90"></div><div class="error" data-error="lifeExpectancy"></div></div>
+        </div>
+      </section>
+      <section class="group">
+        <div class="group-title"><strong>Assumptions</strong><span>Editable defaults</span></div>
+        <div class="fields">
+          <div class="field"><label for="returnRate">Annual return</label><div class="control"><input id="returnRate" type="number" min="-10" max="20" step="0.1" value="6"><span>%</span></div><div class="error" data-error="returnRate"></div></div>
+          <div class="field"><label for="inflation">Inflation</label><div class="control"><input id="inflation" type="number" min="0" max="15" step="0.1" value="2.5"><span>%</span></div><div class="error" data-error="inflation"></div></div>
+          <div class="field"><label for="withdrawalRate">Initial withdrawal</label><div class="control"><input id="withdrawalRate" type="number" min="1" max="12" step="0.1" value="4"><span>%</span></div><div class="error" data-error="withdrawalRate"></div></div>
+          <div class="field"><label for="contributionGrowth">Annual savings increase</label><div class="control"><input id="contributionGrowth" type="number" min="0" max="15" step="0.1" value="2"><span>%</span></div><div class="error" data-error="contributionGrowth"></div></div>
+        </div>
+      </section>
+      <section class="group" id="accountsGroup">
+        <div class="group-title"><strong>Retirement accounts</strong><span id="accountCount">0 accounts</span></div>
+        <div class="accounts" id="accounts"></div>
+        <div style="padding:0 10px 10px"><button class="add" id="addAccount" type="button">+ Add account</button></div>
+        <div class="error" data-error="accounts" style="padding:0 12px 8px"></div>
+      </section>
+      <section class="group">
+        <div class="group-title"><strong>Other retirement income</strong><span>Optional monthly amounts</span></div>
+        <div class="fields">
+          <div class="field"><label for="pension">Pension</label><div class="control"><span>$</span><input id="pension" type="number" min="0" step="100" value="0"></div></div>
+          <div class="field"><label for="socialSecurity">Social Security</label><div class="control"><span>$</span><input id="socialSecurity" type="number" min="0" step="100" value="0"></div></div>
+          <div class="field full"><label for="otherIncome">Other dependable income</label><div class="control"><span>$</span><input id="otherIncome" type="number" min="0" step="100" value="0"></div><div class="hint">Enter estimated monthly income beginning at retirement.</div></div>
+        </div>
+      </section>
+      <div class="actions"><button class="secondary" id="reset">Reset</button><button class="primary" id="calculate">Calculate plan</button></div>
+      <div class="privacy"><strong>Private by design:</strong> your entries stay in this browser's local storage and are never sent to a server.</div>
+    </aside>
+  </div>
+  <button class="backdrop" id="backdrop" aria-label="Close planner inputs"></button>
+  <nav class="bottom-nav" aria-label="App navigation">
+    <button class="nav active" data-target="overview"><svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Overview</span></button>
+    <button class="nav" data-action="inputs"><svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h8M16 18h4"/><circle cx="16" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="14" cy="18" r="2"/></svg><span>Inputs</span></button>
+    <button class="nav" data-target="projectionCard"><svg viewBox="0 0 24 24"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2"/></svg><span>Projection</span></button>
+    <button class="nav" data-action="accounts"><svg viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5zM3 12l9 5 9-5M3 16l9 5 9-5"/></svg><span>Accounts</span></button>
+  </nav>
+</div>
+<script>
+(() => {
+  const KEY = "retirement-planner-all:v1";
+  const COLORS = ["#f3f7fa","#58d5c3","#c8e94a","#a55cff","#ffaa3b","#1eb6ff","#ff7aa2","#a8b6c2"];
+  const TYPES = { pretax:"Pre-tax retirement", roth:"Roth / tax-free", taxable:"Taxable brokerage", cash:"Cash / stable value", other:"Other" };
+  const $ = id => document.getElementById(id);
+  const num = v => v === "" || v == null ? null : Number(v);
+  const money = v => new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(v||0);
+  const compactMoney = v => v >= 1e6 ? "$"+(v/1e6).toFixed(v>=1e7?1:2)+"M" : v >= 1e3 ? "$"+Math.round(v/1e3)+"K" : money(v);
+  const safe = s => String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  let state = { currentAge:null,retirementAge:null,income:null,lifeExpectancy:90,returnRate:6,inflation:2.5,withdrawalRate:4,contributionGrowth:2,pension:0,socialSecurity:0,otherIncome:0,accounts:[] };
+
+  function load(){ try{ const saved=JSON.parse(localStorage.getItem(KEY)); if(saved) state={...state,...saved,accounts:Array.isArray(saved.accounts)?saved.accounts:[]}; }catch{} }
+  function save(){ localStorage.setItem(KEY,JSON.stringify(state)); }
+  function accountTemplate(a,i){
+    const color=COLORS[i%COLORS.length];
+    return `<div class="account" data-id="${a.id}"><div class="account-head"><span class="dot" style="background:${color}"></span><strong>${safe(a.name)||"New account"}</strong><button class="remove" type="button" aria-label="Remove ${safe(a.name)||"account"}">Remove</button></div><div class="account-grid">
+      <div class="field"><label>Account name *</label><div class="control"><input data-k="name" type="text" value="${safe(a.name)}" placeholder="401(k), Roth IRA, brokerage..."></div></div>
+      <div class="field"><label>Account type</label><div class="control"><select data-k="type">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}" ${a.type===k?"selected":""}>${v}</option>`).join("")}</select></div></div>
+      <div class="field"><label>Current balance *</label><div class="control"><span>$</span><input data-k="balance" type="number" min="0" step="100" value="${a.balance??""}" placeholder="0"></div></div>
+      <div class="field"><label>Annual contribution *</label><div class="control"><span>$</span><input data-k="contribution" type="number" min="0" step="100" value="${a.contribution??""}" placeholder="0"></div></div>
+      <div class="field"><label>Return override</label><div class="control"><input data-k="returnOverride" type="number" min="-10" max="20" step="0.1" value="${a.returnOverride??""}" placeholder="Use plan"><span>%</span></div></div>
+    </div></div>`;
+  }
+  function renderAccounts(){
+    $("accounts").innerHTML=state.accounts.map(accountTemplate).join("") || `<div class="hint" style="padding:14px 4px">Add every retirement, investment, or cash account you want included.</div>`;
+    $("accountCount").textContent=`${state.accounts.length} account${state.accounts.length===1?"":"s"}`;
+    $("accounts").querySelectorAll(".account").forEach(card=>{
+      const a=state.accounts.find(x=>x.id===card.dataset.id);
+      card.querySelectorAll("[data-k]").forEach(input=>input.addEventListener("input",()=>{
+        const k=input.dataset.k;a[k]=["name","type"].includes(k)?input.value:num(input.value);card.querySelector("strong").textContent=a.name||"New account";save();
+      }));
+      card.querySelector(".remove").addEventListener("click",()=>{state.accounts=state.accounts.filter(x=>x.id!==a.id);save();renderAccounts();});
+    });
+  }
+  function addAccount(){state.accounts.push({id:crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random(),name:"",type:"pretax",balance:null,contribution:null,returnOverride:null});save();renderAccounts();}
+  const scalarIds=["currentAge","retirementAge","income","lifeExpectancy","returnRate","inflation","withdrawalRate","contributionGrowth","pension","socialSecurity","otherIncome"];
+  function syncForm(){scalarIds.forEach(id=>{$(id).value=state[id]??""});renderAccounts();}
+  function readForm(){scalarIds.forEach(id=>state[id]=num($(id).value));save();}
+  function setError(id,msg){const e=document.querySelector(`[data-error="${id}"]`);if(e)e.textContent=msg||"";const input=$(id);if(input)input.closest(".control")?.classList.toggle("invalid",!!msg)}
+  function validate(){
+    readForm();const errors={};
+    if(!(state.currentAge>=18&&state.currentAge<=100))errors.currentAge="Enter an age from 18 to 100.";
+    if(!(state.retirementAge>=state.currentAge&&state.retirementAge<=100))errors.retirementAge="Use your current age or a later age, up to 100.";
+    if(!(state.income>=0))errors.income="Enter current annual income, including 0 if retired.";
+    if(!(state.lifeExpectancy>state.retirementAge&&state.lifeExpectancy<=120))errors.lifeExpectancy="Plan through an age after retirement, up to 120.";
+    if(!(state.returnRate>=-10&&state.returnRate<=20))errors.returnRate="Use -10% to 20%.";
+    if(!(state.inflation>=0&&state.inflation<=15))errors.inflation="Use 0% to 15%.";
+    if(!(state.withdrawalRate>=1&&state.withdrawalRate<=12))errors.withdrawalRate="Use 1% to 12%.";
+    if(!(state.contributionGrowth>=0&&state.contributionGrowth<=15))errors.contributionGrowth="Use 0% to 15%.";
+    const invalidAccounts=state.accounts.filter(a=>!a.name||!(a.balance>=0)||!(a.contribution>=0)||!(a.returnOverride==null||a.returnOverride===""||a.returnOverride>=-10&&a.returnOverride<=20));
+    if(!state.accounts.length)errors.accounts="Add at least one account.";else if(invalidAccounts.length)errors.accounts="Complete each account name, balance, contribution, and optional return.";
+    ["currentAge","retirementAge","income","lifeExpectancy","returnRate","inflation","withdrawalRate","contributionGrowth","accounts"].forEach(id=>setError(id,errors[id]));
+    return !Object.keys(errors).length;
+  }
+  function project(){
+    const balances=Object.fromEntries(state.accounts.map(a=>[a.id,a.balance||0]));
+    const rows=[];let initialDraw=0,retirementTotal=0;
+    for(let age=state.currentAge;age<=state.lifeExpectancy;age++){
+      const total=Object.values(balances).reduce((s,v)=>s+v,0);
+      if(age===state.retirementAge){retirementTotal=total;initialDraw=total*state.withdrawalRate/100;}
+      rows.push({age,total,accounts:{...balances},phase:age<state.retirementAge?"Saving":"Retired"});
+      if(age===state.lifeExpectancy)break;
+      const grown={};let grownTotal=0;
+      state.accounts.forEach(a=>{const r=(a.returnOverride==null?state.returnRate:a.returnOverride)/100;grown[a.id]=Math.max(0,balances[a.id]*(1+r));grownTotal+=grown[a.id];});
+      if(age<state.retirementAge){
+        const n=age-state.currentAge;state.accounts.forEach(a=>{grown[a.id]+=(a.contribution||0)*Math.pow(1+state.contributionGrowth/100,n);});
+      }else{
+        const retiredYears=age-state.retirementAge;const draw=initialDraw*Math.pow(1+state.inflation/100,retiredYears);const remain=Math.max(0,grownTotal-draw);const factor=grownTotal>0?remain/grownTotal:0;state.accounts.forEach(a=>grown[a.id]*=factor);
+      }
+      Object.assign(balances,grown);
+    }
+    const retirementRow=rows.find(r=>r.age===state.retirementAge)||rows[0];
+    return {rows,retirementRow,retirementTotal:retirementRow.total,initialDraw:retirementRow.total*state.withdrawalRate/100};
+  }
+  function drawChart(p){
+    const svg=$("chart"),W=Math.max(320,svg.clientWidth||700),H=340,pad={l:12,r:12,t:24,b:28},plotW=W-pad.l-pad.r,plotH=H-pad.t-pad.b,max=Math.max(1,...p.rows.map(r=>r.total));svg.setAttribute("viewBox",`0 0 ${W} ${H}`);svg.innerHTML="";
+    const ns="http://www.w3.org/2000/svg",el=(n,a={})=>{const e=document.createElementNS(ns,n);Object.entries(a).forEach(([k,v])=>e.setAttribute(k,v));return e};
+    const x=i=>pad.l+i/(p.rows.length-1||1)*plotW,y=v=>pad.t+plotH-(v/max)*plotH;
+    for(let i=0;i<=4;i++){const gy=pad.t+i*plotH/4;svg.appendChild(el("line",{x1:pad.l,y1:gy,x2:W-pad.r,y2:gy,stroke:"#1b3345","stroke-width":1,"stroke-opacity":.6}));}
+    state.accounts.forEach((a,j)=>{const pts=p.rows.map((r,i)=>`${x(i).toFixed(1)},${y(r.accounts[a.id]||0).toFixed(1)}`).join(" ");svg.appendChild(el("polyline",{points:pts,fill:"none",stroke:COLORS[j%COLORS.length],"stroke-width":1.5,"stroke-opacity":.9}));});
+    const totalPts=p.rows.map((r,i)=>`${x(i).toFixed(1)},${y(r.total).toFixed(1)}`).join(" ");svg.appendChild(el("polyline",{points:totalPts,fill:"none",stroke:"#f3f7fa","stroke-width":2.4}));
+    const ri=p.rows.findIndex(r=>r.age===state.retirementAge),rx=x(Math.max(0,ri));svg.appendChild(el("line",{x1:rx,y1:pad.t,x2:rx,y2:H-pad.b,stroke:"#39d87b","stroke-width":1,"stroke-dasharray":"3 4","stroke-opacity":.75}));
+    [[0,state.currentAge,"start"],[Math.max(0,ri),state.retirementAge,"middle"],[p.rows.length-1,state.lifeExpectancy,"end"]].filter((item,index,all)=>all.findIndex(other=>other[1]===item[1])===index).forEach(([i,label,anchor])=>{const t=el("text",{x:x(i),y:H-9,"text-anchor":anchor,fill:"#91a3b2","font-size":9,"font-family":"ui-monospace,monospace"});t.textContent=label;svg.appendChild(t)});
+    const total=el("text",{x:W-8,y:17,"text-anchor":"end",fill:"#f3f7fa","font-size":15,"font-weight":700});total.textContent=compactMoney(p.retirementTotal)+" at retirement";svg.appendChild(total);
+    $("legend").innerHTML=state.accounts.map((a,i)=>`<span><i class="dot" style="background:${COLORS[i%COLORS.length]}"></i>${safe(a.name)}</span>`).join("")+`<span><i class="dot" style="background:#f3f7fa"></i>Total</span>`;
+  }
+  function renderResults(){
+    if(!validate()){renderEmpty();openDrawer();return}
+    const p=project(),years=Math.max(0,state.retirementAge-state.currentAge),guaranteed=(state.pension||0)+(state.socialSecurity||0)+(state.otherIncome||0),portfolioMonthly=p.initialDraw/12,totalMonthly=portfolioMonthly+guaranteed,todayMonthly=totalMonthly/Math.pow(1+state.inflation/100,years),final=p.rows[p.rows.length-1].total,ranOut=p.rows.find(r=>r.age>state.retirementAge&&r.total<1);
+    $("hero").innerHTML=`<div class="eyebrow">Your retirement outlook</div><h1>${compactMoney(p.retirementTotal)}</h1><div class="hero-note">Projected at age ${state.retirementAge} · ${years} year${years===1?"":"s"} from now · ${money(p.initialDraw)} first-year portfolio draw</div><div class="hero-badges"><span class="badge">${money(totalMonthly)}/month estimated</span><span class="badge">${money(todayMonthly)}/month in today's dollars</span><span class="badge">Plan through age ${state.lifeExpectancy}</span></div>`;
+    ["projectionCard","incomeCard","tableCard"].forEach(id=>$(id).hidden=false);$("chartSubtitle").textContent=`Age ${state.currentAge} through ${state.lifeExpectancy} · accumulation and inflation-adjusted withdrawals`;drawChart(p);
+    const metrics=[["Portfolio draw",portfolioMonthly],["Pension",state.pension],["Social Security",state.socialSecurity],["Other income",state.otherIncome],["Total per month",totalMonthly]];
+    $("incomeGrid").innerHTML=metrics.map(([k,v],i)=>`<div class="metric ${i===metrics.length-1?"total":""}"><small>${k}</small><strong>${money(v)}</strong></div>`).join("");
+    const status=$("status");status.className="status"+(ranOut?" warn":"");status.textContent=ranOut?`At these assumptions, the modeled portfolio reaches $0 around age ${ranOut.age}. Try a later retirement age, higher savings, or a lower withdrawal rate.`:`At these assumptions, the modeled portfolio remains above $0 through age ${state.lifeExpectancy}, ending near ${compactMoney(final)}.`;
+    const milestoneAges=[state.currentAge,state.retirementAge,state.retirementAge+5,state.retirementAge+10,state.lifeExpectancy].filter((a,i,arr)=>a<=state.lifeExpectancy&&arr.indexOf(a)===i);$("thead").innerHTML=`<tr><th>Age</th>${state.accounts.map(a=>`<th>${safe(a.name)}</th>`).join("")}<th>Total</th><th>Phase</th></tr>`;$("tbody").innerHTML=milestoneAges.map(age=>{const r=p.rows.find(x=>x.age===age)||p.rows[p.rows.length-1];return `<tr data-retire="${age===state.retirementAge?1:0}"><td>${age}</td>${state.accounts.map(a=>`<td>${compactMoney(r.accounts[a.id])}</td>`).join("")}<td>${compactMoney(r.total)}</td><td>${r.phase}</td></tr>`}).join("");
+    save();closeDrawer();
+  }
+  function renderEmpty(){
+    $("hero").innerHTML=`<div class="hero-empty"><div class="eyebrow">A planner that starts with you</div><h1>Your future starts with your numbers.</h1><p>Add your age, timeline, income, and accounts. Nothing is prefilled with another person's financial data.</p><button class="primary" id="heroStart">Build my plan</button></div>`;["projectionCard","incomeCard","tableCard"].forEach(id=>$(id).hidden=true);$("heroStart").addEventListener("click",openDrawer);
+  }
+  function openDrawer(){document.body.classList.add("drawer-open");document.body.style.overflow="hidden"}
+  function closeDrawer(){document.body.classList.remove("drawer-open");document.body.style.overflow=""}
+  function resetAll(){if(!confirm("Clear every planner entry stored on this device?"))return;localStorage.removeItem(KEY);location.reload()}
+
+  load();syncForm();scalarIds.forEach(id=>$(id).addEventListener("input",()=>{state[id]=num($(id).value);save()}));$("addAccount").addEventListener("click",addAccount);$("calculate").addEventListener("click",renderResults);$("reset").addEventListener("click",resetAll);$("resetTop").addEventListener("click",resetAll);$("openSetup").addEventListener("click",openDrawer);$("closeSetup").addEventListener("click",closeDrawer);$("backdrop").addEventListener("click",closeDrawer);document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDrawer()});
+  document.querySelectorAll(".nav").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".nav").forEach(b=>b.classList.toggle("active",b===btn));if(btn.dataset.action==="inputs")return openDrawer();if(btn.dataset.action==="accounts"){openDrawer();setTimeout(()=>$("accountsGroup").scrollIntoView({block:"start",behavior:"smooth"}),320);return}closeDrawer();$(btn.dataset.target||"overview")?.scrollIntoView({block:"start",behavior:"smooth"})}));
+  if(state.currentAge!=null&&state.accounts.length)renderResults();else{renderEmpty();if(!localStorage.getItem(KEY))setTimeout(openDrawer,250)}
+  window.addEventListener("resize",()=>{if(!$("projectionCard").hidden&&validate())drawChart(project())});
+  if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{}));
+})();
+</script>
+</body>
+</html>

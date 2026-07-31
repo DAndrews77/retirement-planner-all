@@ -1,0 +1,12 @@
+{
+  "name": "Retirement Planner",
+  "short_name": "Retirement",
+  "description": "A private, flexible retirement planner for any age, income, or portfolio.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#02070d",
+  "theme_color": "#02080e",
+  "icons": [{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
