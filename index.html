@@ -46,7 +46,7 @@
     .group-title{display:flex;align-items:center;gap:9px;padding:13px 14px;border-bottom:1px solid rgba(73,115,139,.2)}.group-title strong{font-size:15px}.group-title span{margin-left:auto;font-size:10px;color:var(--muted)}
     .fields{padding:13px 14px 15px;display:grid;grid-template-columns:1fr 1fr;gap:13px 10px}.field.full{grid-column:1/-1}.field label{display:block;font-size:10.5px;font-weight:650;margin-bottom:5px;color:#dce6eb}.hint{font-size:9.5px;color:var(--muted);margin-top:4px}
     .control{display:flex;align-items:center;border:1px solid rgba(86,128,151,.35);background:#04101a;border-radius:10px;min-height:44px;overflow:hidden}.control span{padding-left:10px;color:var(--green);font-weight:700}.control input,.control select{width:100%;min-width:0;border:0;background:transparent;color:var(--ink);padding:10px;font-size:16px;outline:none}.control input:focus,.control select:focus{background:rgba(30,182,255,.05)}.invalid{border-color:var(--red)!important}.error{min-height:13px;font-size:9.5px;color:#ff9a9a;margin-top:3px}
-    .accounts{padding:0 10px 10px}.account{border:1px solid rgba(73,115,139,.28);background:#06131d;border-radius:14px;padding:11px;margin-bottom:9px}.account-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}.account-head strong{flex:1;font-size:12px}.remove{border:0;background:none;color:#ff9a9a;padding:6px}.account-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.account-grid .field:first-child{grid-column:1/-1}.add{width:100%;min-height:44px;border:1px dashed rgba(57,216,123,.45);border-radius:12px;background:rgba(57,216,123,.06);color:#dfffea}
+    .accounts{padding:0 10px 10px}.account{border:1px solid rgba(73,115,139,.28);background:#06131d;border-radius:14px;padding:11px;margin-bottom:9px}.account.invalid-card{border-color:var(--red)}.account-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}.account-head strong{flex:1;font-size:12px}.remove{border:0;background:none;color:#ff9a9a;padding:6px}.account-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.account-grid .field:first-child{grid-column:1/-1}.add{width:100%;min-height:44px;border:1px dashed rgba(57,216,123,.45);border-radius:12px;background:rgba(57,216,123,.06);color:#dfffea}
     .actions{display:flex;gap:8px;padding:12px;position:sticky;bottom:0;background:linear-gradient(180deg,rgba(2,8,14,.1),#02080e 24%)}.actions .primary{flex:1}.secondary{min-height:44px;padding:10px 13px;border-radius:12px;border:1px solid rgba(104,145,168,.34);background:#091721;color:#dce7ec}
     .privacy{padding:0 14px 14px;color:var(--muted);font-size:10px}.privacy strong{color:var(--green)}
     .backdrop{display:none}.bottom-nav{display:none}
@@ -167,19 +167,24 @@
   function syncForm(){scalarIds.forEach(id=>{$(id).value=state[id]??""});renderAccounts();}
   function readForm(){scalarIds.forEach(id=>state[id]=num($(id).value));save();}
   function setError(id,msg){const e=document.querySelector(`[data-error="${id}"]`);if(e)e.textContent=msg||"";const input=$(id);if(input)input.closest(".control")?.classList.toggle("invalid",!!msg)}
+  const isNum=v=>typeof v==="number"&&Number.isFinite(v);
   function validate(){
     readForm();const errors={};
-    if(!(state.currentAge>=18&&state.currentAge<=100))errors.currentAge="Enter an age from 18 to 100.";
-    if(!(state.retirementAge>=state.currentAge&&state.retirementAge<=100))errors.retirementAge="Use your current age or a later age, up to 100.";
-    if(!(state.income>=0))errors.income="Enter current annual income, including 0 if retired.";
-    if(!(state.lifeExpectancy>state.retirementAge&&state.lifeExpectancy<=120))errors.lifeExpectancy="Plan through an age after retirement, up to 120.";
-    if(!(state.returnRate>=-10&&state.returnRate<=20))errors.returnRate="Use -10% to 20%.";
-    if(!(state.inflation>=0&&state.inflation<=15))errors.inflation="Use 0% to 15%.";
-    if(!(state.withdrawalRate>=1&&state.withdrawalRate<=12))errors.withdrawalRate="Use 1% to 12%.";
-    if(!(state.contributionGrowth>=0&&state.contributionGrowth<=15))errors.contributionGrowth="Use 0% to 15%.";
-    const invalidAccounts=state.accounts.filter(a=>!a.name||!(a.balance>=0)||!(a.contribution>=0)||!(a.returnOverride==null||a.returnOverride===""||a.returnOverride>=-10&&a.returnOverride<=20));
+    if(!(isNum(state.currentAge)&&state.currentAge>=18&&state.currentAge<=100))errors.currentAge="Enter an age from 18 to 100.";
+    if(!(isNum(state.retirementAge)&&isNum(state.currentAge)&&state.retirementAge>=state.currentAge&&state.retirementAge<=100))errors.retirementAge="Use your current age or a later age, up to 100.";
+    if(!(isNum(state.income)&&state.income>=0))errors.income="Enter current annual income, including 0 if retired.";
+    if(!(isNum(state.lifeExpectancy)&&isNum(state.retirementAge)&&state.lifeExpectancy>state.retirementAge&&state.lifeExpectancy<=120))errors.lifeExpectancy="Plan through an age after retirement, up to 120.";
+    if(!(isNum(state.returnRate)&&state.returnRate>=-10&&state.returnRate<=20))errors.returnRate="Use -10% to 20%.";
+    if(!(isNum(state.inflation)&&state.inflation>=0&&state.inflation<=15))errors.inflation="Use 0% to 15%.";
+    if(!(isNum(state.withdrawalRate)&&state.withdrawalRate>=1&&state.withdrawalRate<=12))errors.withdrawalRate="Use 1% to 12%.";
+    if(!(isNum(state.contributionGrowth)&&state.contributionGrowth>=0&&state.contributionGrowth<=15))errors.contributionGrowth="Use 0% to 15%.";
+    const invalidAccounts=state.accounts.filter(a=>!a.name||!(isNum(a.balance)&&a.balance>=0)||!(isNum(a.contribution)&&a.contribution>=0)||!(a.returnOverride==null||a.returnOverride===""||isNum(a.returnOverride)&&a.returnOverride>=-10&&a.returnOverride<=20));
     if(!state.accounts.length)errors.accounts="Add at least one account.";else if(invalidAccounts.length)errors.accounts="Complete each account name, balance, contribution, and optional return.";
     ["currentAge","retirementAge","income","lifeExpectancy","returnRate","inflation","withdrawalRate","contributionGrowth","accounts"].forEach(id=>setError(id,errors[id]));
+    $("accounts").querySelectorAll(".account").forEach(card=>{
+      const a=state.accounts.find(x=>x.id===card.dataset.id);
+      card.classList.toggle("invalid-card",invalidAccounts.includes(a));
+    });
     return !Object.keys(errors).length;
   }
   function project(){
